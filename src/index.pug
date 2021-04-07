@@ -1,0 +1,86 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    title 紅旗舉起來 Raise Your Red Flag
+    link(rel='icon', type='image/png', href='flag.png')
+    link(rel='stylesheet', href='css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css')
+    link(rel='stylesheet', href='css/style.css')
+  body
+    #app
+      transition-group(enter-active-class='animated zoomInDown')
+        .opening(key='0', v-if='state == 0')
+          h1 紅旗#[b 舉]起來
+          h2 Raise Your Red Flag
+          div
+            button.btn.btn-danger.start(type='button', @click='Start()') GAME START!
+            button.btn.btn-info.howto-btn(type='button', @click='state = 3') ?
+          .setting
+            button.btn(type='button' :class="{'btn-outline-secondary': !isPlayVoice,'btn-info': isPlayVoice}" @click="isPlayVoice = !isPlayVoice") 
+              | 語音TTS 
+              span.badge.badge-pill.badge-light(v-if='isPlayVoice') ON
+              span.badge.badge-pill.badge-primary(v-else) OFF
+            .input-group.mb-3
+              .input-group-prepend #[span.input-group-text 題數]
+              input.form-control(type='number' v-model.number="maxGame" style={width: `5rem`})
+            .input-group.mb-3
+              .input-group-prepend #[span.input-group-text 難易度]
+              select.custom-select(v-model.number="speed")
+                option(:value='i.value' v-for='i in difficulty') {{ i.name }}
+            a.btn.btn-primary.github(href='https://github.com/a92304a92304/Raise-Your-Red-Flag' target='_blank' title='View on Github') 
+              img(src='github.png')
+            
+        .gaming(key='1', v-else-if='state == 1')
+          .display
+            video#video(width='1280', height='720', preload, autoplay, loop, muted, controls)
+            canvas#canvas(width='1280', height='720')
+            transition(leave-active-class='animated fadeOut')
+              .game-start(v-if='qNum==0')
+                .alert.alert-success 遊戲開始!
+            transition(mode='out-in' enter-active-class='animated flipInX')
+              .question(v-if='qNum!=0'  :key='qNum')
+                .alert.alert-primary() {{ q }}
+            .judge(:class='{ hide: isResultHide }')
+                span.animated.bounceIn.text-success(:key="'o' + qNum", v-if='result && qNum!=0&&qNum!=1') ✓
+                span.animated.bounceIn.text-danger(:key="'x' + qNum", v-else-if='!result && qNum!=0&&qNum!=1') ✗
+            .q-num(v-if='qNum!=0')
+              .alert.alert-light # {{ qNum }}
+            .score
+              .alert.alert-info SCORE: {{ score }}
+            .line 手請舉高過此線
+          .debug-info(:class='{hide: !isShowDebug}', @click='isShowDebug=!isShowDebug')
+            ul(v-if='false')
+              li(v-for='i in detectList') {{ i }}
+            div 玩家舉的 {{ current }}
+            div 正解 {{ answer }}
+            div(:class="{'text-success': result, 'text-danger': !result}") 結果 {{ result }} 
+            
+        .game-over(key='2', v-else-if='state == 2')
+          h1 那支#[b 舉起]專家
+          .score
+            .alert.alert-info SCORE: {{ score }}
+          button.btn.btn-danger.start(type='button', style='margin-top:1rem', onclick='javascript:window.location.reload()') 再玩壹次
+          
+        .howto(key='3', v-else-if='state == 3')
+          h1.mb-5 紅旗#[b 舉]起來
+          .steps
+            .item
+              h2 1. 允許瀏覽器取用攝像頭
+              img.img-fluid(src='https://i.imgur.com/wggTe47.png' style={maxWidth: `20rem`})
+          .steps
+            .item
+              h2 2. 從手邊找來藍色和紅色的物品
+            .item
+              h2 3. 快速的根據指令將物品舉起或放下
+              
+
+          button.btn.btn-dark(type='button' style='margin-top:1rem' @click='state = 0') ⬅ 返回
+          
+    script(src='js/tracking-min.js')
+    //- script(src='js/stats.min.js')
+    script(src='js/color_camera_gui.js')
+    script(src='js/vue.js')
+    script(src='js/lodash.min.js')
+    script(src='https://code.responsivevoice.org/responsivevoice.js')
+    script(src='js/app.js', charset='utf-8')
